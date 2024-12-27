@@ -7,6 +7,21 @@ app.get("/tasks", async (c) => {
   return c.json(allTasks);
 });
 
+app.post("/tasks", async (c) => {
+  const { title } = await c.req.json<{ title?: string }>();
+  if (!title || title.trim() === "") {
+    return c.json({ error: "Invalid input" }, 400);
+  }
+
+  const result = db.insert(tasks).values({ title }).run();
+  const newTask = db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.id, result.lastInsertRowid as number))
+    .get();
+  return c.json(newTask, 201);
+});
+
 app.put("/tasks/:id", async (c) => {
   const { id } = c.req.param();
 
