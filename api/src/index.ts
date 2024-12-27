@@ -1,16 +1,8 @@
-import { serve } from '@hono/node-server'
-import { Hono } from 'hono'
+import { eq } from "drizzle-orm";
+import { db, tasks } from "./db.js";
+import { app } from "./middleware.js";
 
-const app = new Hono()
-
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
-
-const port = 3000
-console.log(`Server is running on http://localhost:${port}`)
-
-serve({
-  fetch: app.fetch,
-  port
-})
+app.get("/tasks", async (c) => {
+  const allTasks = db.select().from(tasks).all();
+  return c.json(allTasks);
+});
