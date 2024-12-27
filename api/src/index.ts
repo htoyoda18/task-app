@@ -32,3 +32,18 @@ app.put("/tasks/:id", async (c) => {
   const updatedTask = db.select().from(tasks).where(eq(tasks.id, taskId)).get();
   return c.json(updatedTask);
 });
+
+app.delete("/tasks/:id", async (c) => {
+  const { id } = c.req.param();
+  const taskId = Number(id);
+  if (Number.isNaN(taskId)) {
+    return c.json({ error: "Invalid ID" }, 400);
+  }
+
+  const result = db.delete(tasks).where(eq(tasks.id, taskId)).run();
+  if (result.changes === 0) {
+    return c.json({ error: "Task not found" }, 404);
+  }
+
+  return c.json(204);
+});
